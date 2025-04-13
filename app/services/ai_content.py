@@ -5,7 +5,7 @@ from app.config import OPENAI_API_KEY
 openai.api_key = OPENAI_API_KEY
 
 # Function to generate content using OpenAI
-async def generate_ai_content(prompt: str, language: str = "en") -> str:
+async def generate_content(prompt: str, language: str = "en") -> str:
     try:
         response = await openai.ChatCompletion.acreate(
             model="gpt-4",  # You can use "gpt-3.5-turbo" if gpt-4 is not available
