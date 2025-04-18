@@ -9,6 +9,6 @@ db = client[DATABASE_NAME]
 # Optional: Define collection shortcuts for convenience
 users_collection = db.get_collection("users")
 documents_collection = db.get_collection("documents")
-
+user_profiles_collection = db.get_collection("user_profiles")
 
 

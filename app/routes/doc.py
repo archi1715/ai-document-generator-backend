@@ -10,6 +10,9 @@ from app.db.mongo import documents_collection
 from app.utils.docx_generator import generate_word_doc
 from app.utils.pdf_generator import generate_pdf_doc
 from app.utils.ppt_generator import generate_ppt_doc
+from app.auth.dependencies import get_current_user
+from bson import ObjectId
+from fastapi import Path
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -31,6 +34,7 @@ async def create_document(request: PromptRequest):
         # 4. Prepare document
         document_data = {
             "_id": document_id,
+            "user_email": user["email"],
             "prompt": request.prompt,
             "content": content,
             "language": language,
@@ -89,6 +93,51 @@ async def download_ppt(document_id: str):
     return StreamingResponse(ppt_file, media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation", headers={
         "Content-Disposition": f"attachment; filename={document_id}.pptx"
     })
+    
+#Lists all documents created by the current user
+@router.get("/user-documents")
+async def get_user_documents(user=Depends(get_current_user)):
+    documents = await documents_collection.find({"user_email": user["email"]}).to_list(length=100)
+    for doc in documents:
+        doc["_id"] = str(doc["_id"])
+    return {"documents": documents}
+
+#Delete document by ID (owner only)
+@router.delete("/{document_id}")
+async def delete_document(
+    document_id: str = Path(..., description="Document ID to delete"),
+    user=Depends(get_current_user)
+):
+    result = await documents_collection.delete_one({
+        "_id": document_id,
+        "user_email": user["email"]
+    })
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Document not found or unauthorized")
+
+    return {"status": "success", "message": "Document deleted"}
+
+#Update document content
+class UpdateDocument(BaseModel):
+    content: str
+
+@router.put("/{document_id}")
+async def update_document(
+    document_id: str,
+    update: UpdateDocument,
+    user=Depends(get_current_user)
+):
+    result = await documents_collection.update_one(
+        {"_id": document_id, "user_email": user["email"]},
+        {"$set": {"content": update.content}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Document not found or unauthorized")
+
+    return {"status": "success", "message": "Document updated"}
+
 
 
 
