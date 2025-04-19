@@ -3,6 +3,7 @@ from app.routes import doc           # ⬅️ Document-related endpoints
 from app.auth import routes as auth  # ⬅️ Auth-related endpoints (login/register)
 from app.routes import doc, auth, profile
 
+
 app = FastAPI()
 
 # Register document routes

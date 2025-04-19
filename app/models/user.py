@@ -15,13 +15,13 @@ class UserProfile(BaseModel):
     name: str
     lastname: str
     dob: str
-    age: str
+    age: Optional[str] = None 
     email: str
     number: str
     country: str
-    state: str
-    city: str
-    # url: str  # profile picture URL
+    state: Optional[str] = None
+    city: Optional[str] = None
+    url: Optional[str] = None 
     #  account_created: Optional[str] = None
     account_created: str
     last_login: str

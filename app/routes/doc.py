@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Path
 from pydantic import BaseModel
 from langdetect import detect
 from uuid import uuid4
 from datetime import datetime
 from fastapi.responses import StreamingResponse
+from fastapi import Depends
 
 from app.services.ai_content import generate_content
 from app.db.mongo import documents_collection
@@ -20,7 +22,7 @@ class PromptRequest(BaseModel):
     prompt: str
 
 @router.post("/")
-async def create_document(request: PromptRequest):
+async def create_document(request: PromptRequest, user=Depends(get_current_user)):
     try:
         # 1. Generate content using AI
         content = await generate_content(request.prompt)
