@@ -16,6 +16,10 @@ user_profiles_collection = db.get_collection("user_profiles")
 # from motor.motor_asyncio import AsyncIOMotorClient
 # from app.config import MONGO_URI, DATABASE_NAME
 
+# # # Create MongoDB client
+# client = AsyncIOMotorClient(MONGO_URI)
+# db = client[DATABASE_NAME]
+
 # # URL-encode the username and password if you have any special characters in them
 # username = "darshantrks015"
 # password = "darshan.trks@015"
@@ -23,6 +27,11 @@ user_profiles_collection = db.get_collection("user_profiles")
 # # URL-encode the username and password
 # encoded_username = quote_plus(username)
 # encoded_password = quote_plus(password)
+
+# # Optional: Define collection shortcuts for convenience
+# users_collection = db.get_collection("users")
+# documents_collection = db.get_collection("documents")
+# user_profiles_collection = db.get_collection("user_profiles")
 
 # # Update the MONGO_URI with the encoded username and password
 # MONGO_URI = MONGO_URI.replace("darshantrks015", encoded_username).replace("darshan.trks@015", encoded_password)
