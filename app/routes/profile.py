@@ -51,7 +51,7 @@ class PublicUserProfile(BaseModel):
     name: str
     lastname: str
     dob: str
-    age: str
+    age: int
     email: EmailStr
     number: str
     country: str
