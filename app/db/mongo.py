@@ -102,7 +102,7 @@ async def connect_to_mongodb():
             # If both methods fail, try a local MongoDB instance as a fallback
             try:
                 logger.warning("Attempting to connect to local MongoDB as fallback...")
-                local_client = AsyncIOMotorClient("mongodb://localhost:27017")
+                local_client = AsyncIOMotorClient("mongodb://127.0.0.1:27017")
                 await local_client.admin.command('ping')
                 logger.info("Connected to local MongoDB instance")
                 return local_client
