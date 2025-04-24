@@ -5,6 +5,9 @@ from app.routes import doc, profile
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from app.auth import routes  # 🔄 simple import
+from app.routes import subscriber, contact, feedback  # Public APIs
+
 
 
 app = FastAPI()
@@ -17,6 +20,18 @@ app.include_router(auth.router)
 
 # profile routes
 app.include_router(profile.router)
+
+# 🔐 Register/Login/Change Password
+app.include_router(routes.router)  
+
+# ✉️ Subscribe
+app.include_router(subscriber.router) 
+
+# 📩 Contact Us
+app.include_router(contact.router)
+
+# 💬 Feedback
+app.include_router(feedback.router)          
 
 # Add security scheme to OpenAPI docs
 def custom_openapi():
