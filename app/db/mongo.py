@@ -1,31 +1,4 @@
 
-# from motor.motor_asyncio import AsyncIOMotorClient
-# from app.config import MONGO_URI, DATABASE_NAME
-
-# # # Create MongoDB client
-# client = AsyncIOMotorClient(MONGO_URI)
-# db = client[DATABASE_NAME]
-
-# # URL-encode the username and password if you have any special characters in them
-# username = "darshantrks015"
-# password = "darshan.trks@015"
-
-# # URL-encode the username and password
-# encoded_username = quote_plus(username)
-# encoded_password = quote_plus(password)
-
-# # Update the MONGO_URI with the encoded username and password
-# MONGO_URI = MONGO_URI.replace("darshantrks015", encoded_username).replace("darshan.trks@015", encoded_password)
-
-# # Establish the MongoDB connection
-# client = AsyncIOMotorClient(MONGO_URI)
-# db = client[DATABASE_NAME]   
-
-# # Optional: Define collection shortcuts for convenience
-# users_collection = db.get_collection("users")
-# documents_collection = db.get_collection("documents") 
-# user_profiles_collection = db.get_collection("user_profiles") 
-
 
 # File: app/db/mongo.py
 from urllib.parse import quote_plus
@@ -174,6 +147,8 @@ async def initialize_db():
         user_profiles_collection = DummyCollection("user_profiles") 
         return False
 
+logger.info(f"users_collection initialized: {users_collection is not None}")
+logger.info(f"documents_collection initialized: {documents_collection is not None}")
 # Function to get collection references (helpful for modules imported before DB init)
 def get_users_collection():
     return users_collection

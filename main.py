@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from app.db.mongo import initialize_db
+# from app.db.mongo import initialize_db
 import uvicorn
 import logging
 
@@ -58,6 +59,8 @@ async def startup_event():
 @app.get("/")
 def root():
     return RedirectResponse(url="/docs")
+app.include_router(doc.router)
+app.include_router(profile.router)
 
 # For running locally
 if __name__ == "__main__":
