@@ -9,9 +9,9 @@ from fastapi import Depends
 
 from app.services.ai_content import generate_content
 from app.db.mongo import documents_collection
-from app.utils.docx_generator import generate_word_doc
-from app.utils.pdf_generator import generate_pdf_doc
-from app.utils.ppt_generator import generate_ppt_doc
+# from app.utils.docx_generator import generate_word_doc
+# from app.utils.pdf_generator import generate_pdf_doc
+# from app.utils.ppt_generator import generate_ppt_doc
 from app.auth.dependencies import get_current_user
 from bson import ObjectId
 from fastapi import Path
