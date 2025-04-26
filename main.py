@@ -59,7 +59,7 @@ app.openapi = custom_openapi
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with domain in production
+    allow_origins=["https://ai-documentgenerator.vercel.app"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
