@@ -2,8 +2,11 @@
 # File: app/auth/routes.py
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+# from pydantic import BaseModel
+# from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, EmailStr
 from app.models.user import UserCreate
+from app.db.mongo import users_collection
 from app.auth.auth import hash_password, verify_password, create_access_token
 import logging
 import smtplib
@@ -17,7 +20,7 @@ logger = logging.getLogger("app.auth.routes")
 router = APIRouter(prefix="/auth", tags=["Auth"])
 # Define JSON login input model
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 async def send_welcome_email(to_email: str):
     sender_email = "darshan.trks015@gmail.com"
@@ -128,6 +131,19 @@ async def register(user: UserCreate):
         logger.error(f"Error during user registration: {e}")
         raise HTTPException(status_code=500, detail="Database operation failed")
 
+    hashed_pwd = hash_password(user.password)
+    new_user = {
+        "email": user.email,
+        "password": hashed_pwd
+    }
+    await users_collection.insert_one(new_user)
+
+    return {
+        "status": "success",
+        "message": "User registered successfully"
+    }
+
+# ✅ Login route (accepts JSON)
 @router.post("/login")
 async def login(login_data: LoginRequest):
     users_collection = get_users_collection()
@@ -141,7 +157,8 @@ async def login(login_data: LoginRequest):
     
     try:
         db_user = await users_collection.find_one({"email": login_data.email})
-        
+        print("DB user:", db_user)
+
         if not db_user:
             logger.warning(f"Login failed: User not found - {login_data.email}")
             raise HTTPException(status_code=401, detail="Invalid email or password")

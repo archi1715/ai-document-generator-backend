@@ -1,17 +1,25 @@
 
 
-# File: app/db/mongo.py
-from urllib.parse import quote_plus
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
-import certifi
 import logging
-import ssl
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.config import MONGO_URI, DATABASE_NAME
+from urllib.parse import quote_plus
 
-# Set up logging
+# Configure logger
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("app.db.mongo")
+logger = logging.getLogger(__name__)
 
+# Connect to MongoDB using the URI from .env
+client = AsyncIOMotorClient(MONGO_URI)
+
+# Select the database
+db = client[DATABASE_NAME]
+
+# Define collection shortcuts
+users_collection = db.get_collection("users")
+documents_collection = db.get_collection("documents")
+user_profiles_collection = db.get_collection("user_profiles")
 # Initialize connection variables
 client = None
 db = None

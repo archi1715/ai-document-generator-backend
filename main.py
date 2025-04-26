@@ -2,10 +2,13 @@ from fastapi import FastAPI
 from app.routes import doc, profile
 from app.auth import routes as auth
 from fastapi.responses import RedirectResponse
+import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from app.auth import routes  # 🔄 simple import
+from app.routes import subscriber, contact, feedback  # Public APIs
+
 from app.db.mongo import initialize_db
-# from app.db.mongo import initialize_db
 import uvicorn
 import logging
 
@@ -20,7 +23,19 @@ app.include_router(doc.router)
 app.include_router(auth.router)
 app.include_router(profile.router)
 
-# OpenAPI Security
+# 🔐 Register/Login/Change Password
+app.include_router(routes.router)  
+
+# ✉️ Subscribe
+app.include_router(subscriber.router) 
+
+# 📩 Contact Us
+app.include_router(contact.router)
+
+# 💬 Feedback
+app.include_router(feedback.router)          
+
+# Add security scheme to OpenAPI docs
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
