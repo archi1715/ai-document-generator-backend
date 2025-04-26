@@ -5,7 +5,7 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import MONGO_URI, DATABASE_NAME
 from urllib.parse import quote_plus
-
+import urllib.parse
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,8 +35,8 @@ async def connect_to_mongodb():
         logger.info("Attempting to connect to MongoDB Atlas...")
         
         # Hard-code credentials with proper escaping
-        username = quote_plus("darshantrks015")
-        password = quote_plus("darshan.trks@015")
+        username = urllib.parse.quote_plus("darshantrks015")
+        password = urllib.parse.quote_plus("darshan.trks@015") 
         
         # Use MongoDB Atlas SRV connection string format
         srv_uri = f"mongodb+srv://{username}:{password}@cluster0.ywacvyp.mongodb.net/?retryWrites=true&w=majority"
