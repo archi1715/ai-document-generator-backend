@@ -131,17 +131,17 @@ async def register(user: UserCreate):
         logger.error(f"Error during user registration: {e}")
         raise HTTPException(status_code=500, detail="Database operation failed")
 
-    hashed_pwd = hash_password(user.password)
-    new_user = {
-        "email": user.email,
-        "password": hashed_pwd
-    }
-    await users_collection.insert_one(new_user)
+    # hashed_pwd = hash_password(user.password)
+    # new_user = {
+    #     "email": user.email,
+    #     "password": hashed_pwd
+    # }
+    # await users_collection.insert_one(new_user)
 
-    return {
-        "status": "success",
-        "message": "User registered successfully"
-    }
+    # return {
+    #     "status": "success",
+    #     "message": "User registered successfully"
+    # }
 
 # ✅ Login route (accepts JSON)
 @router.post("/login")

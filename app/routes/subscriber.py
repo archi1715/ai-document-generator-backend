@@ -1,8 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import db
-
+from app.db.mongo import db 
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.config import MONGO_URI, DATABASE_NAME
 router = APIRouter(prefix="/api", tags=["Subscriber"])
+client = AsyncIOMotorClient(MONGO_URI)
+db = client[DATABASE_NAME]
 
 subscribers_collection = db.get_collection("subscribers")
 

@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
 from app.db.mongo import db
-
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.config import MONGO_URI, DATABASE_NAME
 router = APIRouter(prefix="/api", tags=["Feedback"])
-
+client = AsyncIOMotorClient(MONGO_URI)
+db = client[DATABASE_NAME]
 feedback_collection = db.get_collection("feedback")
 
 class FeedbackRequest(BaseModel):
