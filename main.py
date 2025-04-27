@@ -1,28 +1,22 @@
 from fastapi import FastAPI
-from app.routes import doc           # ⬅️ Document-related endpoints
-from app.auth import auth, routes as auth  # ⬅️ Auth-related endpoints (login/register)
-from app.routes import doc, profile
+from app.routes import doc, profile, subscriber, contact, feedback
+from app.auth import routes as auth_routes
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.auth import routes  # 🔄 simple import
-from app.routes import subscriber, contact, feedback  # Public APIs
 
 
 
 app = FastAPI()
 
-# Register document routes
-app.include_router(doc.router)
-
-# Register authentication routes
-app.include_router(auth.router)
+# 🔐 Register/Login/Change Password
+app.include_router(auth_routes.router)  
 
 # profile routes
-app.include_router(profile.router)
+app.include_router(profile.router) 
 
-# 🔐 Register/Login/Change Password
-app.include_router(routes.router)  
+# Register document routes
+app.include_router(doc.router)
 
 # ✉️ Subscribe
 app.include_router(subscriber.router) 
