@@ -12,7 +12,7 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-# Import get_collection function instead of direct collection reference
+from app.auth.dependencies import get_current_user
 from app.db.mongo import get_user_profiles_collection, get_users_collection
 
 # Set up logging
@@ -22,6 +22,10 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+class ChangePasswordRequest(BaseModel):
+     old_password: str
+     new_password: str
+     
 async def send_welcome_email(to_email: str):
     sender_email = "darshan.trks015@gmail.com"
     sender_password = "vwlz nemv etyt kdab"
@@ -143,7 +147,7 @@ async def register(user: UserCreate):
     #     "message": "User registered successfully"
     # }
 
-# ✅ Login route (accepts JSON)
+
 @router.post("/login")
 async def login(login_data: LoginRequest):
     users_collection = get_users_collection()
@@ -183,3 +187,18 @@ async def login(login_data: LoginRequest):
             raise e
         logger.error(f"Error during login: {e}")
         raise HTTPException(status_code=500, detail="Login operation failed")
+
+
+@router.post("/change-password")
+async def change_password(data: ChangePasswordRequest, user=Depends(get_current_user)):
+     if not verify_password(data.old_password, user["password"]):
+         raise HTTPException(status_code=400, detail="Incorrect old password")
+ 
+     new_hashed = hash_password(data.new_password)
+
+     await users_collection.update_one(
+         {"email": user["email"]},
+         {"$set": {"password": new_hashed}}
+     )
+ 
+     return {"status": "success", "message": "Password changed successfully"}

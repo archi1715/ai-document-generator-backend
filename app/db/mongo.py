@@ -20,12 +20,18 @@ db = client[DATABASE_NAME]
 users_collection = db.get_collection("users")
 documents_collection = db.get_collection("documents")
 user_profiles_collection = db.get_collection("user_profiles")
+contacts_collection = db.get_collection("contacts")
+feedback_collection = db.get_collection("feedback")
+subscribers_collection = db.get_collection("subscribers")
 # Initialize connection variables
 client = None
 db = None
 users_collection = None
 documents_collection = None
 user_profiles_collection = None
+contacts_collection = None
+feedback_collection = None
+subscribers_collection =None
 DATABASE_NAME = os.getenv("DATABASE_NAME", "ai-document")
 
 async def connect_to_mongodb():
@@ -94,7 +100,7 @@ async def connect_to_mongodb():
 
 # Setup function to be called at application startup
 async def initialize_db():
-    global client, db, users_collection, documents_collection, user_profiles_collection
+    global client, db, users_collection, documents_collection, user_profiles_collection ,contacts_collection , feedback_collection , subscribers_collection
     
     client = await connect_to_mongodb()
     
@@ -108,18 +114,25 @@ async def initialize_db():
         if "documents" not in await db.list_collection_names():
             await db.create_collection("documents")
         if "user_profiles" not in await db.list_collection_names():
-            await db.create_collection("user_profiles")
-            
+            await db.create_collection("user_profiles") 
+        if "contacts" not in await db.list_collection_names():
+            await db.create_collection("contacts")
+        if "feedback" not in await db.list_collection_names():
+            await db.create_collection("feedback")
+        if "subscribers" not in await db.list_collection_names():
+            await db.create_collection("subscribers")
         # Get references to collections
         users_collection = db.users
         documents_collection = db.documents
         user_profiles_collection = db.user_profiles
-        
+        contacts_collection = db.contacts 
+        feedback_collection = db.feedback
+        subscribers_collection =db.subscribers
         # Debug check to ensure collections are non-None
         logger.info(f"users_collection initialized: {users_collection is not None}")
         logger.info(f"documents_collection initialized: {documents_collection is not None}")
         logger.info(f"user_profiles_collection initialized: {user_profiles_collection is not None}")
-        
+        logger.info(f"contacts_collection initialized: {contacts_collection is not None}")
         logger.info(f"Successfully initialized collections in database: {DATABASE_NAME}")
         return True
     else:
@@ -127,6 +140,7 @@ async def initialize_db():
         
         # Create dummy collections that log errors when used but don't crash
         class DummyCollection:
+            
             def __init__(self, name):
                 self.name = name
                 
@@ -153,7 +167,11 @@ async def initialize_db():
         users_collection = DummyCollection("users")
         documents_collection = DummyCollection("documents")
         user_profiles_collection = DummyCollection("user_profiles") 
+        feedback_collection=DummyCollection("feedback")
+        contacts_collection=DummyCollection("contacts")
+        subscribers_collection=DummyCollection("subscribers")
         return False
+    
 
 logger.info(f"users_collection initialized: {users_collection is not None}")
 logger.info(f"documents_collection initialized: {documents_collection is not None}")
@@ -166,3 +184,9 @@ def get_documents_collection():
 
 def get_user_profiles_collection():
     return user_profiles_collection
+def get_contacts_collection():
+    return contacts_collection
+def get_feedback_collection():
+    return feedback_collection
+def get_subscribers_collection():
+    return subscribers_collection
