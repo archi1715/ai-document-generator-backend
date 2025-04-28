@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import db
+from app.db.mongo import feedback_collection
 
 router = APIRouter(prefix="/api", tags=["Feedback"])
 
-feedback_collection = db.get_collection("feedback")
 
 class FeedbackRequest(BaseModel):
     name: str

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from app.auth.dependencies import get_current_user
-from app.db.mongo import user_profiles_collection
+from app.db.mongo import get_user_profiles_collection
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter(prefix="/api/profile", tags=["User Profile"])
@@ -26,7 +26,7 @@ async def save_user_profile(data: dict, user=Depends(get_current_user)):
     )
 
     # Save to DB
-    await user_profiles_collection.update_one(
+    await get_user_profiles_collection.update_one(
         {"email": email},
         {"$set": data},
         upsert=True
@@ -39,7 +39,7 @@ async def save_user_profile(data: dict, user=Depends(get_current_user)):
 @router.get("/user-get")
 async def get_user_profile(user=Depends(get_current_user)):
     email = user["email"]
-    profile = await user_profiles_collection.find_one({"email": email})
+    profile = await get_user_profiles_collection.find_one({"email": email})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
@@ -62,7 +62,7 @@ class PublicUserProfile(BaseModel):
 #  First-time profile creation using public data
 @router.post("/user")
 async def public_create_user_profile(profile: PublicUserProfile):
-    existing = await user_profiles_collection.find_one({"email": profile.email})
+    existing = await get_user_profiles_collection.find_one({"email": profile.email})
     if existing:
         raise HTTPException(status_code=400, detail="Profile already exists. Use update instead.")
 
@@ -77,17 +77,17 @@ async def public_create_user_profile(profile: PublicUserProfile):
         ]) else "Not Verified"
     )
 
-    await user_profiles_collection.insert_one(data)
+    await get_user_profiles_collection.insert_one(data)
     return {"status": "success", "message": "Profile created successfully."}
 
 # Update profile using public data
 @router.put("/user-update")
 async def public_update_user_profile(profile: PublicUserProfile):
-    existing = await user_profiles_collection.find_one({"email": profile.email})
+    existing = await get_user_profiles_collection.find_one({"email": profile.email})
     if not existing:
         raise HTTPException(status_code=404, detail="Profile not found. Please create first.")
 
-    result = await user_profiles_collection.update_one(
+    result = await get_user_profiles_collection.update_one(
         {"email": profile.email},
         {"$set": profile.dict()}
     )

@@ -1,10 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import db
+from app.db.mongo import contacts_collection
 
 router = APIRouter(prefix="/api", tags=["Contact"])
-
-contacts_collection = db.get_collection("contacts")
 
 class ContactRequest(BaseModel):
     name: str

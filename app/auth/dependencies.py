@@ -2,7 +2,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.config import SECRET_KEY
-from app.db.mongo import users_collection
+from app.db.mongo import get_user_profiles_collection
+from app.db.mongo import get_users_collection 
 
 # Define the OAuth2 flow using /auth/login as token URL
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -27,6 +28,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
         if email is None:
             raise credentials_exception
+
+        users_collection = get_users_collection()  # ✅ always use latest reference
+        if users_collection is None:
+            raise HTTPException(status_code=500, detail="Database not initialized")
 
         user = await users_collection.find_one({"email": email})
         print("👤 User found:", user)  # 🐞 DEBUG LINE

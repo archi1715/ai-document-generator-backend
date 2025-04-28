@@ -1,10 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import db
+from app.db.mongo import subscribers_collection
 
 router = APIRouter(prefix="/api", tags=["Subscriber"])
 
-subscribers_collection = db.get_collection("subscribers")
 
 class SubscribeRequest(BaseModel):
     email: EmailStr
