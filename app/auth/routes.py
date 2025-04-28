@@ -194,5 +194,49 @@ async def change_password(data: ChangePasswordRequest, user=Depends(get_current_
      )
  
      return {"status": "success", "message": "Password changed successfully"}
+ 
+ 
+ # Forgot Password API (send reset token)
+@router.post("/forgot-password")
+async def forgot_password(data: ForgotPasswordRequest):
+    user = await get_users_collection.find_one({"email": data.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    reset_token = create_access_token(
+        {"sub": user["email"]},
+        expires_delta=timedelta(minutes=10)
+    )
+    return {
+        "status": "success",
+        "message": "Reset token generated",
+        "reset_token": reset_token
+    }
+    
+@router.post("/reset-password")
+async def reset_password(data: ResetPasswordRequest):
+    try:
+        payload = jwt.decode(data.reset_token, SECRET_KEY, algorithms=["HS256"])
+        email = payload.get("sub")
+
+        if not email:
+            raise HTTPException(status_code=400, detail="Invalid token")
+
+        user = await get_users_collection.find_one({"email": email})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        hashed_pwd = hash_password(data.new_password)
+        await get_users_collection.update_one(
+            {"email": email},
+            {"$set": {"password": hashed_pwd}}
+        )
+
+        return {"status": "success", "message": "Password reset successfully"}
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail="Reset token expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=400, detail="Invalid token")
 
 
