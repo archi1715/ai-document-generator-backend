@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import feedback_collection
+from app.db.mongo import get_feedback_collection
 
 router = APIRouter(prefix="/api", tags=["Feedback"])
 
@@ -12,7 +12,7 @@ class FeedbackRequest(BaseModel):
 
 @router.post("/feedback")
 async def submit_feedback(data: FeedbackRequest):
-    await feedback_collection.insert_one(data.dict())
+    await get_feedback_collection.insert_one(data.dict())
     return {"status": "success", "message": "Feedback received"}
 
 

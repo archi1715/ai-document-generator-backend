@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
-from app.db.mongo import contacts_collection
+from app.db.mongo import get_contacts_collection
 
 router = APIRouter(prefix="/api", tags=["Contact"])
 
@@ -13,6 +13,6 @@ class ContactRequest(BaseModel):
 
 @router.post("/contact")
 async def submit_contact(data: ContactRequest):
-    await contacts_collection.insert_one(data.dict())
+    await get_contacts_collection.insert_one(data.dict())
     return {"status": "success", "message": "Message sent"}
 

@@ -1,35 +1,51 @@
-
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import MONGO_URI, DATABASE_NAME
-import os
 import logging
-from motor.motor_asyncio import AsyncIOMotorClient
 
-# Configure logger
+# ✅ Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Connect to MongoDB using the URI from .env
+# ✅ Connect to MongoDB using the URI from .env
 client = AsyncIOMotorClient(MONGO_URI)
 
-# Select the database
+# ✅ Select the database
 db = client[DATABASE_NAME]
 
-# Define collection shortcuts
-get_users_collection = db.get_collection("users")
-documents_collection = db.get_collection("documents")
-get_user_profiles_collection = db.get_collection("user_profiles")
-subscribers_collection = db.get_collection("subscribers")
-contacts_collection = db.get_collection("contacts")
-feedback_collection = db.get_collection("feedback")
+# ✅ Collection Accessor Functions (callable when needed)
+def get_users_collection():
+    return db.get_collection("users")
 
-# ✅ Initialize DB check function
+def get_user_profiles_collection():
+    return db.get_collection("user_profiles")
+
+def get_documents_collection():
+    return db.get_collection("documents")
+
+def get_presentation_collection():
+    return db.get_collection("presentations")
+
+def get_subscribers_collection():
+    return db.get_collection("subscribers")
+
+def get_contacts_collection():
+    return db.get_collection("contacts")
+
+def get_feedback_collection():
+    return db.get_collection("feedback")
+
+def get_admin_collection():
+    return db.get_collection("admin")
+
+
+# ✅ Optional DB initialization check
 async def initialize_db():
     try:
-        await db.command("ping")   # Try ping command to MongoDB
+        await db.command("ping")
         logger.info("✅ MongoDB connection successful.")
     except Exception as e:
         logger.error(f"❌ MongoDB connection failed: {str(e)}")
+
 
 
 

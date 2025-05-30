@@ -1,38 +1,27 @@
-import openai
+import os
 import traceback
-from app.config import OPENAI_API_KEY
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# Initialize OpenAI API key
-openai.api_key = OPENAI_API_KEY
+load_dotenv()
 
-# Function to generate content using OpenAI
+# Set Gemini API key
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Initialize the model  gemini-pro
+model = genai.GenerativeModel("gemini-pro")  
+
+# Generate content using Gemini
 async def generate_content(prompt: str, language: str = "en") -> str:
     try:
-        response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",  # Change to "gpt-4" if needed and allowed
-            messages=[
-                {"role": "system", "content": "You are a helpful AI writing assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=300
-        )
-        content = response.choices[0].message.content.strip()
-        return content
+        full_prompt = f"Language: {language}\nPrompt: {prompt}"
+        response = model.generate_content(full_prompt)
+
+        # Gemini returns response in .text
+        return response.text.strip()
 
     except Exception as e:
-        print("OpenAI error:", str(e))
+        print("Gemini error:", str(e))
         traceback.print_exc()
         return "Sorry, there was an error generating content."
-
-# Uncomment this if you want to temporarily switch to mock response
-"""
-async def generate_content(prompt: str, language: str = "en") -> str:
-    try:
-        fake_response = f"This is a mock response for the prompt: '{prompt}'"
-        return fake_response
-    except Exception as e:
-        print("Mocked generation error:", str(e))
-        traceback.print_exc()
-        return "Sorry, mock generation failed."
-"""

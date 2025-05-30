@@ -15,6 +15,8 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY is not set in the .env file")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY is not set or loaded correctly from .env")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY is not set or loaded correctly from .env")
+
+USE_MOCK_GPT = os.getenv("USE_MOCK_GPT", "true").lower() == "true"
