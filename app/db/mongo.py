@@ -9,11 +9,18 @@ import urllib.parse
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+from motor.motor_asyncio import AsyncIOMotorClient
+from app.config import MONGO_URI, DATABASE_NAME
+import logging
 
-# Connect to MongoDB using the URI from .env
+# ✅ Configure logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ✅ Connect to MongoDB using the URI from .env
 client = AsyncIOMotorClient(MONGO_URI)
 
-# Select the database
+# ✅ Select the database
 db = client[DATABASE_NAME]
 
 # Define collection shortcuts
@@ -36,6 +43,80 @@ DATABASE_NAME = os.getenv("DATABASE_NAME", "ai-document")
 
 async def connect_to_mongodb():
     global client
+# ✅ Collection Accessor Functions (callable when needed)
+def get_users_collection():
+    return db.get_collection("users")
+
+def get_user_profiles_collection():
+    return db.get_collection("user_profiles")
+
+def get_documents_collection():
+    return db.get_collection("documents")
+
+def get_presentation_collection():
+    return db.get_collection("presentations")
+
+def get_subscribers_collection():
+    return db.get_collection("subscribers")
+
+def get_contacts_collection():
+    return db.get_collection("contacts")
+
+def get_feedback_collection():
+    return db.get_collection("feedback")
+
+def get_admin_collection():
+    return db.get_collection("admin")
+
+
+# ✅ Optional DB initialization check
+async def initialize_db():
+    try:
+        await db.command("ping")
+        logger.info("✅ MongoDB connection successful.")
+    except Exception as e:
+        logger.error(f"❌ MongoDB connection failed: {str(e)}")
+
+
+
+
+
+# import os
+# import logging
+# from motor.motor_asyncio import AsyncIOMotorClient
+# from app.config import MONGO_URI, DATABASE_NAME
+# from urllib.parse import quote_plus
+# import urllib.parse
+# # Configure logger
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+
+# # Connect to MongoDB using the URI from .env
+# client = AsyncIOMotorClient(MONGO_URI)
+
+# # Select the database
+# db = client[DATABASE_NAME]
+
+# Define collection shortcuts
+# users_collection = db.get_collection("users")
+# documents_collection = db.get_collection("documents")
+# user_profiles_collection = db.get_collection("user_profiles")
+# contacts_collection = db.get_collection("contacts")
+# feedback_collection = db.get_collection("feedback")
+# subscribers_collection = db.get_collection("subscribers")
+# # Initialize connection variables
+# client = None
+# db = None
+# users_collection = None
+# documents_collection = None
+# user_profiles_collection = None
+# contacts_collection = None
+# feedback_collection = None
+# subscribers_collection =None
+# DATABASE_NAME = os.getenv("DATABASE_NAME", "ai-document")
+
+# async def connect_to_mongodb():
+#     global client
     
     try:
         logger.info("Attempting to connect to MongoDB Atlas...")
@@ -43,6 +124,9 @@ async def connect_to_mongodb():
         # Hard-code credentials with proper escaping
         username = urllib.parse.quote_plus("darshantrks015")
         password = urllib.parse.quote_plus("darshan.trks@015") 
+#         # Hard-code credentials with proper escaping
+#         username = urllib.parse.quote_plus("darshantrks015")
+#         password = urllib.parse.quote_plus("darshan.trks@015") 
         
         # Use MongoDB Atlas SRV connection string format
         srv_uri = f"mongodb+srv://{username}:{password}@cluster0.ywacvyp.mongodb.net/?retryWrites=true&w=majority"
@@ -101,6 +185,21 @@ async def connect_to_mongodb():
 # Setup function to be called at application startup
 async def initialize_db():
     global client, db, users_collection, documents_collection, user_profiles_collection ,contacts_collection , feedback_collection , subscribers_collection
+#             # If both methods fail, try a local MongoDB instance as a fallback
+#             try:
+#                 logger.warning("Attempting to connect to local MongoDB as fallback...")
+#                 local_client = AsyncIOMotorClient("mongodb://127.0.0.1:27017")
+#                 await local_client.admin.command('ping')
+#                 logger.info("Connected to local MongoDB instance")
+#                 return local_client
+#             except Exception as e3:
+#                 logger.error(f"❌ Local connection failed: {e3}")
+#                 logger.error("All connection attempts failed. Application will run without database.")
+#                 return None
+
+# Setup function to be called at application startup
+# async def initialize_db():
+#     global client, db, users_collection, documents_collection, user_profiles_collection ,contacts_collection , feedback_collection , subscribers_collection
     
     client = await connect_to_mongodb()
     
@@ -178,6 +277,76 @@ logger.info(f"documents_collection initialized: {documents_collection is not Non
 # Function to get collection references (helpful for modules imported before DB init)
 def get_users_collection():
     return users_collection
+#         # Explicitly create collections if they don't exist
+#         if "users" not in await db.list_collection_names():
+#             await db.create_collection("users")
+#         if "documents" not in await db.list_collection_names():
+#             await db.create_collection("documents")
+#         if "user_profiles" not in await db.list_collection_names():
+#             await db.create_collection("user_profiles") 
+#         if "contacts" not in await db.list_collection_names():
+#             await db.create_collection("contacts")
+#         if "feedback" not in await db.list_collection_names():
+#             await db.create_collection("feedback")
+#         if "subscribers" not in await db.list_collection_names():
+#             await db.create_collection("subscribers")
+#         # Get references to collections
+#         users_collection = db.users
+#         documents_collection = db.documents
+#         user_profiles_collection = db.user_profiles
+#         contacts_collection = db.contacts 
+#         feedback_collection = db.feedback
+#         subscribers_collection =db.subscribers
+#         # Debug check to ensure collections are non-None
+#         logger.info(f"users_collection initialized: {users_collection is not None}")
+#         logger.info(f"documents_collection initialized: {documents_collection is not None}")
+#         logger.info(f"user_profiles_collection initialized: {user_profiles_collection is not None}")
+#         logger.info(f"contacts_collection initialized: {contacts_collection is not None}")
+#         logger.info(f"Successfully initialized collections in database: {DATABASE_NAME}")
+#         return True
+#     else:
+#         logger.warning("⚠️ WARNING: MongoDB collections not initialized. Application will run but database operations will fail.")
+        
+#         # Create dummy collections that log errors when used but don't crash
+#         class DummyCollection:
+            
+#             def __init__(self, name):
+#                 self.name = name
+                
+#             async def find_one(self, *args, **kwargs):
+#                 logger.error(f"Attempted to use {self.name}.find_one() but database is not connected")
+#                 return None
+                
+#             async def insert_one(self, *args, **kwargs):
+#                 logger.error(f"Attempted to use {self.name}.insert_one() but database is not connected")
+#                 return None
+                
+#             async def update_one(self, *args, **kwargs):
+#                 logger.error(f"Attempted to use {self.name}.update_one() but database is not connected")
+#                 return None
+                
+#             async def delete_one(self, *args, **kwargs):
+#                 logger.error(f"Attempted to use {self.name}.delete_one() but database is not connected")
+#                 return None
+                
+#             async def find(self, *args, **kwargs):
+#                 logger.error(f"Attempted to use {self.name}.find() but database is not connected")
+#                 return []
+        
+#         users_collection = DummyCollection("users")
+#         documents_collection = DummyCollection("documents")
+#         user_profiles_collection = DummyCollection("user_profiles") 
+#         feedback_collection=DummyCollection("feedback")
+#         contacts_collection=DummyCollection("contacts")
+#         subscribers_collection=DummyCollection("subscribers")
+#         return False
+    
+
+# logger.info(f"users_collection initialized: {users_collection is not None}")
+# logger.info(f"documents_collection initialized: {documents_collection is not None}")
+# # Function to get collection references (helpful for modules imported before DB init)
+# def get_users_collection():
+#     return users_collection
 
 def get_documents_collection():
     return documents_collection
@@ -190,3 +359,12 @@ def get_feedback_collection():
     return feedback_collection
 def get_subscribers_collection():
     return subscribers_collection
+# def get_user_profiles_collection():
+#     return user_profiles_collection
+# def get_contacts_collection():
+#     return contacts_collection
+# def get_feedback_collection():
+#     return feedback_collection
+# def get_subscribers_collection():
+#     return subscribers_collection
+        

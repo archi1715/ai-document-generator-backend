@@ -12,6 +12,10 @@ from app.db.mongo import documents_collection
 # from app.utils.docx_generator import generate_word_doc
 # from app.utils.pdf_generator import generate_pdf_doc
 # from app.utils.ppt_generator import generate_ppt_doc
+from app.db.mongo import get_documents_collection
+from app.utils.docx_generator import generate_word_doc
+from app.utils.pdf_generator import generate_pdf_doc
+from app.utils.ppt_generator import generate_ppt_doc
 from app.auth.dependencies import get_current_user
 from bson import ObjectId
 from fastapi import Path
@@ -45,7 +49,7 @@ async def create_document(request: PromptRequest, user=Depends(get_current_user)
         }
 
         # 5. Insert into MongoDB
-        await documents_collection.insert_one(document_data)
+        await get_documents_collection.insert_one(document_data)
 
         # 6. Return result
         return {
@@ -61,7 +65,7 @@ async def create_document(request: PromptRequest, user=Depends(get_current_user)
 # 📥 Download as Word
 @router.get("/download/{document_id}/word")
 async def download_word(document_id: str):
-    document = await documents_collection.find_one({"_id": document_id})
+    document = await get_documents_collection.find_one({"_id": document_id})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
@@ -74,7 +78,7 @@ async def download_word(document_id: str):
 # 📥 Download as PDF
 @router.get("/download/{document_id}/pdf")
 async def download_pdf(document_id: str):
-    document = await documents_collection.find_one({"_id": document_id})
+    document = await get_documents_collection.find_one({"_id": document_id})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
@@ -87,7 +91,7 @@ async def download_pdf(document_id: str):
 # 📥 Download as PowerPoint
 @router.get("/download/{document_id}/ppt")
 async def download_ppt(document_id: str):
-    document = await documents_collection.find_one({"_id": document_id})
+    document = await get_documents_collection.find_one({"_id": document_id})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
@@ -99,7 +103,7 @@ async def download_ppt(document_id: str):
 #Lists all documents created by the current user
 @router.get("/user-documents")
 async def get_user_documents(user=Depends(get_current_user)):
-    documents = await documents_collection.find({"user_email": user["email"]}).to_list(length=100)
+    documents = await get_documents_collection.find({"user_email": user["email"]}).to_list(length=100)
     for doc in documents:
         doc["_id"] = str(doc["_id"])
     return {"documents": documents}
@@ -110,7 +114,7 @@ async def delete_document(
     document_id: str = Path(..., description="Document ID to delete"),
     user=Depends(get_current_user)
 ):
-    result = await documents_collection.delete_one({
+    result = await get_documents_collection.delete_one({
         "_id": document_id,
         "user_email": user["email"]
     })
@@ -130,7 +134,7 @@ async def update_document(
     update: UpdateDocument,
     user=Depends(get_current_user)
 ):
-    result = await documents_collection.update_one(
+    result = await get_documents_collection.update_one(
         {"_id": document_id, "user_email": user["email"]},
         {"$set": {"content": update.content}}
     )

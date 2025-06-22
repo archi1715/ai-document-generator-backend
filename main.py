@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from app.routes import doc, profile
 from app.auth import routes as auth
+from app.routes import doc, profile, subscriber, contact, feedback
+from app.routes import presentation
+from app.auth import routes as auth_routes
+import logging
+from app.routes import admin
 from fastapi.responses import RedirectResponse
 import logging
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +13,7 @@ from fastapi.openapi.utils import get_openapi
 from app.auth import routes  # 🔄 simple import
 from app.routes import subscriber, contact, feedback  # Public APIs
 
+from app.auth import routes
 from app.db.mongo import initialize_db
 import uvicorn
 import logging
@@ -25,6 +31,20 @@ app.include_router(profile.router)
 
 # 🔐 Register/Login/Change Password
 app.include_router(routes.router)  
+#admin routes
+app.include_router(admin.router)
+
+# 🔐 Register/Login/Change Password
+app.include_router(auth_routes.router)  
+
+# profile routes
+app.include_router(profile.router) 
+
+# Register document routes
+app.include_router(doc.router)
+
+#ppt route
+app.include_router(presentation.router, prefix="/api/presentation", tags=["Presentation"])
 
 # ✉️ Subscribe
 app.include_router(subscriber.router) 
@@ -54,13 +74,11 @@ def custom_openapi():
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
-app.openapi = custom_openapi
-
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["https://ai-documentgenerator.vercel.app"], 
-    allow_origins=["http://localhost:3000"], 
+    allow_origins=["https://ai-documentgenerator.vercel.app"], 
+    # allow_origins=["http://localhost:3000"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

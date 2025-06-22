@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from app.auth.dependencies import get_current_user
-from app.db.mongo import user_profiles_collection
+from app.db.mongo import get_user_profiles_collection
 from pydantic import BaseModel, EmailStr
 from app.db.mongo import get_user_profiles_collection
 router = APIRouter(prefix="/api/profile", tags=["User Profile"])
@@ -69,8 +69,8 @@ async def save_user_profile(
         ]) else "Not Verified"
     )
 
-    # Save to DB (upsert)
-    await user_profiles_collection.update_one(
+    # Save to DB
+    await get_user_profiles_collection.update_one(
         {"email": email},
         {"$set": data},
         upsert=True
@@ -79,20 +79,60 @@ async def save_user_profile(
     return {"status": "success", "message": "Profile saved successfully."}
 
 
-@router.put("/user-update")
-async def public_update_user_profile(
-    profile: PublicUserProfile,
-    current_user: dict = Depends(get_current_user),
-    user_profiles_collection = Depends(get_user_profiles_collection)
-):
-    email = current_user["email"]
+# GET: Fetch profile of currently logged-in user
+@router.get("/user-get")
+async def get_user_profile(user=Depends(get_current_user)):
+    email = user["email"]
+    profile = await get_user_profiles_collection.find_one({"email": email})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
 
-    existing = await user_profiles_collection.find_one({"email": email})
+    profile["_id"] = str(profile["_id"])  # Convert ObjectId to string
+    return profile
+
+# Schema for profile creation and update
+class PublicUserProfile(BaseModel):
+    name: str
+    lastname: str
+    dob: str
+    age: int
+    email: EmailStr
+    number: str
+    country: str
+    state: str
+    city: str
+    url: str
+
+#  First-time profile creation using public data
+@router.post("/user")
+async def public_create_user_profile(profile: PublicUserProfile):
+    existing = await get_user_profiles_collection.find_one({"email": profile.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Profile already exists. Use update instead.")
+
+    current_time = datetime.utcnow().isoformat()
+    data = profile.dict()
+    data["account_created"] = current_time
+    data["last_login"] = current_time
+    data["membership_plan"] = "Free"
+    data["account_verification"] = (
+        "Verified" if all(data.get(field) for field in [
+            "name", "lastname", "dob", "email", "number", "country"
+        ]) else "Not Verified"
+    )
+
+    await get_user_profiles_collection.insert_one(data)
+    return {"status": "success", "message": "Profile created successfully."}
+
+# Update profile using public data
+@router.put("/user-update")
+async def public_update_user_profile(profile: PublicUserProfile):
+    existing = await get_user_profiles_collection.find_one({"email": profile.email})
     if not existing:
         raise HTTPException(status_code=404, detail="Profile not found. Please create first.")
 
-    result = await user_profiles_collection.update_one(
-        {"email": email},
+    result = await get_user_profiles_collection.update_one(
+        {"email": profile.email},
         {"$set": profile.dict()}
     )
 

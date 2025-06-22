@@ -24,11 +24,10 @@
 # File: app/auth/auth.py
 '''from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from app.config import SECRET_KEY
+from app.config import SECRET_KEY,ACCESS_TOKEN_EXPIRE_MINUTES
 
 # SECRET_KEY = "your_secret_key_here"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 from jose import jwt
 import os
@@ -43,12 +42,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def hash_password(password: str) -> str:
     """Hash a password for storing."""
+# Password hashing
+def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_access_token(data: dict):
+#JWT generation
+def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
@@ -129,6 +131,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # JWT generation
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

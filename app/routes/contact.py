@@ -8,6 +8,9 @@ router = APIRouter(prefix="/api", tags=["Contact"])
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[DATABASE_NAME]
 contacts_collection = db.get_collection("contacts")
+from app.db.mongo import get_contacts_collection
+
+router = APIRouter(prefix="/api", tags=["Contact"])
 
 class ContactRequest(BaseModel):
     name: str

@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.config import SECRET_KEY
 from app.db.mongo import users_collection
+from app.db.mongo import get_user_profiles_collection
 from app.db.mongo import get_users_collection 
 
 # Define the OAuth2 flow using /auth/login as token URL
