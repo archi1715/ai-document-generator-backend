@@ -25,6 +25,12 @@ def get_documents_collection():
 def get_presentation_collection():
     return db.get_collection("presentations")
 
+def get_document_history_collection():
+    return db.get_collection("document_history")
+
+def get_login_history_collection():
+    return db.get_collection("login_history")
+
 def get_subscribers_collection():
     return db.get_collection("subscribers")
 

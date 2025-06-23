@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.models.user import UserCreate, LoginRequest,ResetPasswordRequest,ChangePasswordRequest,ForgotPasswordRequest
 from app.db.mongo import get_users_collection
 from app.db.mongo import get_user_profiles_collection
+from app.db.mongo import get_login_history_collection
 from app.auth.auth import hash_password, verify_password, create_access_token
 import logging
 import smtplib
@@ -171,6 +172,12 @@ async def login(login_data: LoginRequest):
 
         token = create_access_token({"sub": db_user["email"]})
         logger.info(f"Login successful for user: {login_data.email}")
+        
+        # ✅ HERE: Add login history record
+        await get_login_history_collection().insert_one({
+        "email": login_data.email,
+        "timestamp": datetime.utcnow()
+        })
         
         return {"status": "success", "access_token": token, "token_type": "bearer"}
     

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from app.auth import routes
 from app.db.mongo import initialize_db
+from app.routes import login_history
 import uvicorn
 import logging
 
@@ -32,6 +33,9 @@ app.include_router(doc.router)
 
 #ppt route
 app.include_router(presentation.router, prefix="/api/presentation", tags=["Presentation"])
+
+#login_history
+app.include_router(login_history.router)
 
 # ✉️ Subscribe
 app.include_router(subscriber.router) 
