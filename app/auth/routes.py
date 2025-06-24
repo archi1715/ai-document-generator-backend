@@ -19,40 +19,72 @@ from datetime import datetime
 logger = logging.getLogger("app.auth.routes")
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-async def send_welcome_email(to_email: str):
-    sender_email = "darshan.trks015@gmail.com"
-    sender_password = "vwlz nemv etyt kdab"
-
-
-    subject = "🎉 Welcome to AI Doc Generator!"
+async def send_welcome_email(to_email: str, user_name: str = "there"):
+    sender_email = "darshan.trks015@gmail.com"  
+    sender_password = "vwlz nemv etyt kdab"  
     
-    body = """
+
+    msg = MIMEMultipart("alternative")
+    
+  
+    msg["Subject"] = "Welcome to AI Doc Generator" 
+    msg["From"] = f"AI Doc Generator <{sender_email}>"
+    msg["To"] = to_email
+    msg["Reply-To"] = sender_email
+ 
+    msg["List-Unsubscribe"] = f"<mailto:{sender_email}?subject=unsubscribe>"
+    msg["X-Priority"] = "3" 
+    
+    
+    plain_text = f"""
+    Welcome to AI Doc Generator!
+    
+    Hi {user_name},
+    
+    Thanks for joining AI Doc Generator! 
+    We're excited to have you on board. Your journey to effortless documentation starts now.
+    
+    If you have any questions, feel free to reply to this email. We're here to help!
+    
+    Get started here: https://ai-documentgenerator.vercel.app/login
+    
+    © 2025 AI Doc Generator • All rights reserved
+    """
+    
+    # HTML version
+    html_body = f"""
     <html>
     <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4;">
         <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto; background-color:#ffffff; border-radius:10px; overflow:hidden;">
             <tr style="background-color:#4f46e5;">
                 <td style="padding:20px; text-align:center;">
-                    <h2 style="color:#ffffff; margin:0;">Welcome to AI Doc Generator 👋</h2>
+                    <h2 style="color:#ffffff; margin:0;">Welcome to AI Doc Generator</h2>
                 </td>
             </tr>
             <tr>
                 <td style="padding:30px; color:#333333;">
-                    <p style="font-size:16px;">Hi there,</p>
+                    <p style="font-size:16px;">Hi {user_name},</p>
                     <p style="font-size:16px; line-height:1.6;">
-                        Thanks for joining <strong>AI Doc Generator</strong>! 🚀<br/>
+                        Thanks for joining <strong>AI Doc Generator</strong>!<br/>
                         We're excited to have you on board. Your journey to effortless documentation starts now.
                     </p>
                     <p style="font-size:16px;">
-                        If you have any questions, feel free to reply to this email. We’re here to help!
+                        If you have any questions, feel free to reply to this email. We're here to help!
                     </p>
-                    <a href="https://your-website.com" style="display:inline-block; margin-top:20px; padding:10px 20px; background-color:#4f46e5; color:white; text-decoration:none; border-radius:5px;">
-                        Get Started
-                    </a>
+                    <div style="text-align:center; margin:30px 0;">
+                        <a href="https://your-website.com" style="display:inline-block; padding:12px 24px; background-color:#4f46e5; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">
+                            Get Started
+                        </a>
+                    </div>
                 </td>
             </tr>
             <tr>
-                <td style="padding:20px; text-align:center; font-size:12px; color:#aaaaaa;">
-                    &copy; 2025 AI Doc Generator • All rights reserved
+                <td style="padding:20px; text-align:center; font-size:12px; color:#666666; border-top:1px solid #eeeeee;">
+                    <p>© 2025 AI Doc Generator • All rights reserved</p>
+                    <p>
+                        <a href="https://your-website.com/unsubscribe?email={to_email}" style="color:#4f46e5; text-decoration:none;">Unsubscribe</a> • 
+                        <a href="https://your-website.com/privacy" style="color:#4f46e5; text-decoration:none;">Privacy Policy</a>
+                    </p>
                 </td>
             </tr>
         </table>
@@ -60,11 +92,9 @@ async def send_welcome_email(to_email: str):
     </html>
     """
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = to_email
-    msg.attach(MIMEText(body, "html"))
+    # Attach both plain text and HTML versions
+    msg.attach(MIMEText(plain_text, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
